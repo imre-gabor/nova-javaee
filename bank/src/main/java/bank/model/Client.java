@@ -1,4 +1,4 @@
-package bank;
+package bank.model;
 
 import java.io.Serializable;
 import javax.persistence.*;

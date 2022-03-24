@@ -1,4 +1,4 @@
-package bank;
+package bank.service;
 
 public class BankException extends Exception {
 

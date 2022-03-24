@@ -1,6 +1,9 @@
-package bank;
+package bank.service;
 
 import javax.ejb.Local;
+
+import bank.model.Account;
+import bank.model.Client;
 
 @Local
 public interface BankSessionBeanLocal {
