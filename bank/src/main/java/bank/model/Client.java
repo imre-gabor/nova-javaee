@@ -29,6 +29,13 @@ public class Client implements Serializable {
 	public Client() {
 	}
 
+	
+	public Client(String name, String address) {
+		super();
+		this.name = name;
+		this.address = address;
+	}
+
 	public int getClientid() {
 		return this.clientid;
 	}
