@@ -3,8 +3,12 @@ package bank.service;
 import java.util.Date;
 import java.util.Optional;
 
+import javax.annotation.Resource;
 import javax.ejb.EJB;
+import javax.ejb.EJBContext;
+import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
+import javax.jms.Session;
 
 import bank.dao.AccountDao;
 import bank.dao.ClientDao;
@@ -22,6 +26,9 @@ public class BankSessionBean implements BankSessionBeanLocal {
 	
 	@EJB
 	AccountDao accountDao;
+	
+	@Resource
+	SessionContext ctx;
 
     @Override
 	public void createClient(Client client) {
@@ -42,13 +49,18 @@ public class BankSessionBean implements BankSessionBeanLocal {
     @Override
 	public void transfer(int fromAccountId, int toAccountId, double amount) throws BankException {
     	
-    	Optional<Account> fromAccount = accountDao.findById(fromAccountId);
-    	Optional<Account> toAccount = accountDao.findById(toAccountId);
-    	if(!fromAccount.isPresent() || !toAccount.isPresent())
-    		throw new BankException("Non-existing account.");
-    	
-    	toAccount.get().increase(amount);
-    	fromAccount.get().decrease(amount);
+    	try {
+	    	Optional<Account> fromAccount = accountDao.findById(fromAccountId);
+	    	Optional<Account> toAccount = accountDao.findById(toAccountId);
+	    	if(!fromAccount.isPresent() || !toAccount.isPresent())
+	    		throw new BankException("Non-existing account.");
+	    	
+	    	toAccount.get().increase(amount);
+	    	fromAccount.get().decrease(amount);
+    	} catch (Exception e) {
+    		ctx.setRollbackOnly();
+    		throw new BankException(e);
+    	}
     }
 
 }
