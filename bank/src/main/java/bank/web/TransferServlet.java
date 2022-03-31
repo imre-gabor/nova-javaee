@@ -32,6 +32,7 @@ public class TransferServlet extends HttpServlet {
 		double amount = Double.parseDouble(request.getParameter("amount"));
 		
 		try {
+			
 			bank.transfer(fromAccountId, toAccountId, amount);
 			request.setAttribute("resultOfTransfer", "Transfer successful");
 		} catch (Exception e) {

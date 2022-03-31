@@ -10,6 +10,7 @@ import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
+import javax.interceptor.Interceptors;
 import javax.jms.Session;
 
 import bank.dao.AccountDao;
@@ -23,6 +24,7 @@ import bank.model.History;
  * Session Bean implementation class BankSessionBean
  */
 @Stateless
+@Interceptors(LoggerInterceptor.class)
 public class BankSessionBean implements BankSessionBeanLocal {
 	
 	@EJB
