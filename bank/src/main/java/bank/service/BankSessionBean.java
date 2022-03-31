@@ -31,7 +31,7 @@ public class BankSessionBean implements BankSessionBeanLocal {
     @Override
 	public void createAccountForClient(Account account, int clientId) throws BankException {
     	Optional<Client> optionalClient = clientDao.findById(clientId);
-    	if(optionalClient.isEmpty())
+    	if(!optionalClient.isPresent())
     		throw new BankException("Client with given id does not exist");
 
     	optionalClient.get().addAccount(account);
