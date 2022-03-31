@@ -15,7 +15,7 @@ import bank.service.BankSessionBeanLocal;
 /**
  * Servlet implementation class CreateClientServlet
  */
-@WebServlet("/CreateClientServlet")
+@WebServlet("/CreateAccountServlet")
 public class CreateAccountServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
