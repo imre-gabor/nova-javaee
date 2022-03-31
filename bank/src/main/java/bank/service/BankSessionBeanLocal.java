@@ -18,4 +18,6 @@ public interface BankSessionBeanLocal {
 
 	void logHistory(String message);
 
+	void scheduleTransfer(int fromAccountId, int toAccountId, double amount);
+
 }

@@ -5,13 +5,15 @@ import java.util.Optional;
 
 import javax.annotation.Resource;
 import javax.ejb.EJB;
-import javax.ejb.EJBContext;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
+import javax.ejb.Timeout;
+import javax.ejb.Timer;
+import javax.ejb.TimerConfig;
+import javax.ejb.TimerService;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.interceptor.Interceptors;
-import javax.jms.Session;
 
 import bank.dao.AccountDao;
 import bank.dao.ClientDao;
@@ -38,6 +40,9 @@ public class BankSessionBean implements BankSessionBeanLocal {
 	
 	@Resource
 	SessionContext ctx;
+	
+	@Resource
+	TimerService timerService;
 
     @Override
 	public void createClient(Client client) {
@@ -53,6 +58,23 @@ public class BankSessionBean implements BankSessionBeanLocal {
     	optionalClient.get().addAccount(account);
     	account.setCreatedate(new Date());
     	accountDao.create(account);
+    }
+    
+    
+    @Override
+	public void scheduleTransfer(int fromAccountId, int toAccountId, double amount) {
+    	timerService.createSingleActionTimer(5000, new TimerConfig(new TransferData(fromAccountId, toAccountId, amount), false));
+    }
+    
+    @Timeout
+    public void executeScheduledTransfer(Timer timer) {
+    	TransferData transferData = (TransferData) timer.getInfo();
+    	try {
+			transfer(transferData.getFromAccountId(), transferData.getToAccountId(), transferData.getAmount());
+		} catch (BankException e) {
+			System.out.println("Scheduled transfer could not be executed.");
+			e.printStackTrace();
+		}
     }
     
     @Override

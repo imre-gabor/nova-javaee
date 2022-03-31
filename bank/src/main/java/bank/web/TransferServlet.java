@@ -31,13 +31,23 @@ public class TransferServlet extends HttpServlet {
 		int toAccountId = Integer.parseInt(request.getParameter("to"));
 		double amount = Double.parseDouble(request.getParameter("amount"));
 		
+//		try {
+//			
+//			bank.transfer(fromAccountId, toAccountId, amount);
+//			request.setAttribute("resultOfTransfer", "Transfer successful");
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			request.setAttribute("resultOfTransfer", "Error during transfer: "  + e.getMessage());
+//		}
+		
+		
 		try {
 			
-			bank.transfer(fromAccountId, toAccountId, amount);
-			request.setAttribute("resultOfTransfer", "Transfer successful");
+			bank.scheduleTransfer(fromAccountId, toAccountId, amount);
+			request.setAttribute("resultOfTransfer", "Transfer scheduled successfully");
 		} catch (Exception e) {
 			e.printStackTrace();
-			request.setAttribute("resultOfTransfer", "Error during transfe: "  + e.getMessage());
+			request.setAttribute("resultOfTransfer", "Error at scheduling transfer: "  + e.getMessage());
 		}
 		
 		request.getRequestDispatcher("index.jsp").forward(request, response);
