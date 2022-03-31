@@ -42,6 +42,13 @@ public class BankSessionBean implements BankSessionBeanLocal {
     @Override
 	public void transfer(int fromAccountId, int toAccountId, double amount) throws BankException {
     	
+    	Optional<Account> fromAccount = accountDao.findById(fromAccountId);
+    	Optional<Account> toAccount = accountDao.findById(toAccountId);
+    	if(!fromAccount.isPresent() || !toAccount.isPresent())
+    		throw new BankException("Non-existing account.");
+    	
+    	toAccount.get().increase(amount);
+    	fromAccount.get().decrease(amount);
     }
 
 }

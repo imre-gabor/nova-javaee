@@ -2,6 +2,9 @@ package bank.model;
 
 import java.io.Serializable;
 import javax.persistence.*;
+
+import bank.service.BankException;
+
 import java.util.Date;
 
 
@@ -61,6 +64,23 @@ public class Account implements Serializable {
 
 	public void setClient(Client client) {
 		this.client = client;
+	}
+	
+	
+	public void increase(double amount) {
+		if(amount < 0)
+			throw new IllegalArgumentException("amount cannot be negative");
+		this.balance += amount;
+	}
+	
+	public void decrease(double amount) throws BankException {
+		if(amount < 0)
+			throw new IllegalArgumentException("amount cannot be negative");
+		
+		if(amount > this.balance)
+			throw new BankException("Balance too small.");
+		
+		this.balance -= amount;
 	}
 
 }
