@@ -8,12 +8,16 @@ import javax.ejb.EJB;
 import javax.ejb.EJBContext;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.jms.Session;
 
 import bank.dao.AccountDao;
 import bank.dao.ClientDao;
+import bank.dao.HistoryDao;
 import bank.model.Account;
 import bank.model.Client;
+import bank.model.History;
 
 /**
  * Session Bean implementation class BankSessionBean
@@ -26,6 +30,9 @@ public class BankSessionBean implements BankSessionBeanLocal {
 	
 	@EJB
 	AccountDao accountDao;
+	
+	@EJB
+	HistoryDao historyDao;
 	
 	@Resource
 	SessionContext ctx;
@@ -50,6 +57,10 @@ public class BankSessionBean implements BankSessionBeanLocal {
 	public void transfer(int fromAccountId, int toAccountId, double amount) throws BankException {
     	
     	try {
+    		//cél: akkor is le legyen naplózva a history táblába ez az esemény, ha végül a transfer sikertelen, és rollbackel
+    		ctx.getBusinessObject(BankSessionBeanLocal.class)
+    			.logHistory(String.format("Trying to transfer from account %d to account %d amount %f", fromAccountId, toAccountId, amount));
+    		
 	    	Optional<Account> fromAccount = accountDao.findById(fromAccountId);
 	    	Optional<Account> toAccount = accountDao.findById(toAccountId);
 	    	if(!fromAccount.isPresent() || !toAccount.isPresent())
@@ -57,10 +68,21 @@ public class BankSessionBean implements BankSessionBeanLocal {
 	    	
 	    	toAccount.get().increase(amount);
 	    	fromAccount.get().decrease(amount);
+	    	
     	} catch (Exception e) {
     		ctx.setRollbackOnly();
     		throw new BankException(e);
     	}
+    }
+    
+    /*
+     * csak akkor működik, más middleware szolgáltatásokhoz hasonlóan, ha a generált wrapperen keresztül hívjuk
+     * ha lokálisan ebből az EJB-ből, akkor nem!
+     */
+    @Override
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW) 
+    public void logHistory(String message) {
+    	historyDao.create(new History(message));
     }
 
 }
