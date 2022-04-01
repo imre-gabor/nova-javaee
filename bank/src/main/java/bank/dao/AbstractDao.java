@@ -45,7 +45,7 @@ public abstract class AbstractDao<T, ID> {
 	}
 	
 	public void deleteById(ID id) {
-		CriteriaBuilder cb = em().getCriteriaBuilder();
+		CriteriaBuilder cb = getCriteriaBuilder();
 		CriteriaDelete<T> criteriaDelete = cb.createCriteriaDelete(entityClass);
 		Root<T> root = criteriaDelete.from(entityClass);
 		
@@ -58,15 +58,20 @@ public abstract class AbstractDao<T, ID> {
 	
 	
 	public List<T> findAll(){
-		CriteriaBuilder cb = em().getCriteriaBuilder();
+		CriteriaBuilder cb = getCriteriaBuilder();
 		CriteriaQuery<T> cq = cb.createQuery(entityClass);
 		cq.from(entityClass);
 		
 		return em().createQuery(cq).getResultList();
 	}
 
-	public void deleteAll() {
+	public CriteriaBuilder getCriteriaBuilder() {
 		CriteriaBuilder cb = em().getCriteriaBuilder();
+		return cb;
+	}
+
+	public void deleteAll() {
+		CriteriaBuilder cb = getCriteriaBuilder();
 		CriteriaDelete<T> criteriaDelete = cb.createCriteriaDelete(entityClass);
 		criteriaDelete.from(entityClass);
 		em().createQuery(criteriaDelete).executeUpdate();

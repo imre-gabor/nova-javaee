@@ -1,6 +1,7 @@
 package bank.service;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 import javax.annotation.Resource;
@@ -134,4 +135,11 @@ public class BankSessionBean implements BankSessionBeanLocal {
     public void logTopTransfers() {
     	historyDao.findTop5Today().forEach(System.out::println);
     }
+    
+    
+    @Override
+	public List<Client> searchClients(Client example){
+    	return clientDao.findByExample(example);
+    }
+    
 }

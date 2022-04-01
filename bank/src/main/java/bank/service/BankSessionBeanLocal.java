@@ -1,5 +1,7 @@
 package bank.service;
 
+import java.util.List;
+
 import javax.ejb.Local;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
@@ -24,5 +26,7 @@ public interface BankSessionBeanLocal {
 	void scheduleTransfer(int fromAccountId, int toAccountId, double amount);
 
 	void updateHistoryStatus(History history, Status status);
+
+	List<Client> searchClients(Client example);
 
 }
