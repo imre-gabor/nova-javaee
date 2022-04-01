@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import javax.annotation.Resource;
 import javax.ejb.EJB;
+import javax.ejb.Schedule;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 import javax.ejb.Timeout;
@@ -83,9 +84,11 @@ public class BankSessionBean implements BankSessionBeanLocal {
 	public void transfer(int fromAccountId, int toAccountId, double amount) throws BankException {
     	
     	History history = null;
+    	Status status = null;
+    	BankSessionBeanLocal self = ctx.getBusinessObject(BankSessionBeanLocal.class);
     	try {
     		//cél: akkor is le legyen naplózva a history táblába ez az esemény, ha végül a transfer sikertelen, és rollbackel
-    		history = ctx.getBusinessObject(BankSessionBeanLocal.class)
+			history = self
     			.logHistory(String.format("Trying to transfer from account %d to account %d amount %f", fromAccountId, toAccountId, amount), amount);
     		
 	    	Optional<Account> fromAccount = accountDao.findById(fromAccountId);
@@ -95,11 +98,13 @@ public class BankSessionBean implements BankSessionBeanLocal {
 	    	
 	    	toAccount.get().increase(amount);
 	    	fromAccount.get().decrease(amount);
-	    	history.setStatus(Status.SUCCESS);
+	    	status = Status.SUCCESS;
     	} catch (Exception e) {
-    		history.setStatus(Status.FAILURE);
+    		status = Status.FAILURE;
     		ctx.setRollbackOnly();
     		throw new BankException(e);
+    	} finally {
+    		self.updateHistoryStatus(history, status);
     	}
     }
     
@@ -116,4 +121,16 @@ public class BankSessionBean implements BankSessionBeanLocal {
 		return historyDao.create(history);
     }
     
+    
+    @Override
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW) 
+    public void updateHistoryStatus(History history, Status status) {
+    	history.setStatus(status);
+    	historyDao.update(history);
+    }
+    
+//    @Schedule(minute = "*/1", hour = "*")
+    public void logTopTransfers() {
+    	historyDao.findTop5Today().forEach(System.out::println);
+    }
 }

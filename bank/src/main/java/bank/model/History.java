@@ -6,8 +6,11 @@ import java.time.OffsetDateTime;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.NamedQuery;
 
 @Entity
+@NamedQuery(name="History.findByTsBetween", query = "SELECT h FROM History h WHERE h.ts BETWEEN :from AND :to")
+@NamedQuery(name="History.findByTsOrderByAmountDesc", query = "SELECT h FROM History h WHERE h.ts BETWEEN :from AND :to ORDER BY h.amount DESC")
 public class History {
 
 	

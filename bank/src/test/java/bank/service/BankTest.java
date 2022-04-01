@@ -24,7 +24,7 @@ import bank.model.Client;
 public class BankTest {
 
 	@InjectMocks
-	BankSessionBean bank;
+	BankSessionBeanLocal bank;
 	
 	@Mock
 	ClientDao clientDao;

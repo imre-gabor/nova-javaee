@@ -1,9 +1,11 @@
 package bank.dao;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaQuery;
@@ -67,5 +69,20 @@ public abstract class AbstractDao<T, ID> {
 		CriteriaDelete<T> criteriaDelete = cb.createCriteriaDelete(entityClass);
 		criteriaDelete.from(entityClass);
 		em().createQuery(criteriaDelete).executeUpdate();
+	}
+	
+	public List<T> findWithNamedQuery(String queryName, Integer firstResult, Integer maxResults, Map<String, Object> parameters){
+		
+		TypedQuery<T> query = em().createNamedQuery(queryName, entityClass);
+		query.setFirstResult(firstResult == null ? 0 : firstResult);
+		query.setMaxResults(maxResults == null ? 0 : maxResults);
+		for (Map.Entry<String, Object> par : parameters.entrySet()) {
+			query.setParameter(par.getKey(), par.getValue());
+		}
+		return query.getResultList();
+	}
+	
+	public List<T> findWithNamedQuery(String queryName, Map<String, Object> parameters){
+		return findWithNamedQuery(queryName, null, null, parameters);
 	}
 }
