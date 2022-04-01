@@ -49,13 +49,23 @@ public abstract class AbstractDao<T, ID> {
 		EntityType<T> entity = em().getMetamodel().entity(entityClass);
 		SingularAttribute<? super T, ID> idAttribute = entity.getId(idClass);
 		criteriaDelete.where(cb.equal(root.get(idAttribute) , id));
+		
+		em().createQuery(criteriaDelete).executeUpdate();
 	}
 	
 	
 	public List<T> findAll(){
 		CriteriaBuilder cb = em().getCriteriaBuilder();
 		CriteriaQuery<T> cq = cb.createQuery(entityClass);
+		cq.from(entityClass);
 		
 		return em().createQuery(cq).getResultList();
+	}
+
+	public void deleteAll() {
+		CriteriaBuilder cb = em().getCriteriaBuilder();
+		CriteriaDelete<T> criteriaDelete = cb.createCriteriaDelete(entityClass);
+		criteriaDelete.from(entityClass);
+		em().createQuery(criteriaDelete).executeUpdate();
 	}
 }

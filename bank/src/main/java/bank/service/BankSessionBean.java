@@ -15,6 +15,7 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.interceptor.Interceptors;
 
+import bank.dao.AbstractDao;
 import bank.dao.AccountDao;
 import bank.dao.ClientDao;
 import bank.dao.HistoryDao;
