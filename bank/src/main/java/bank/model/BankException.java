@@ -1,4 +1,4 @@
-package bank.service;
+package bank.model;
 
 import javax.ejb.ApplicationException;
 

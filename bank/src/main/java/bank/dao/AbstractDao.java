@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaDelete;
@@ -75,14 +76,41 @@ public abstract class AbstractDao<T, ID> {
 		
 		TypedQuery<T> query = em().createNamedQuery(queryName, entityClass);
 		query.setFirstResult(firstResult == null ? 0 : firstResult);
-		query.setMaxResults(maxResults == null ? 0 : maxResults);
+		if(maxResults != null)
+			query.setMaxResults(maxResults);
 		for (Map.Entry<String, Object> par : parameters.entrySet()) {
 			query.setParameter(par.getKey(), par.getValue());
 		}
 		return query.getResultList();
 	}
 	
+	
+	public List<T> findWithJpql(String jpql, Integer firstResult, Integer maxResults, Map<String, Object> parameters){
+		
+		TypedQuery<T> query = em().createQuery(jpql, entityClass);
+		query.setFirstResult(firstResult == null ? 0 : firstResult);
+		if(maxResults != null)
+			query.setMaxResults(maxResults);
+		for (Map.Entry<String, Object> par : parameters.entrySet()) {
+			query.setParameter(par.getKey(), par.getValue());
+		}
+		return query.getResultList();
+	}
+	
+	public List<T> findWithJpql(String jpql, Map<String, Object> parameters){
+		return findWithJpql(jpql, null, null, parameters);
+	}
+	
 	public List<T> findWithNamedQuery(String queryName, Map<String, Object> parameters){
 		return findWithNamedQuery(queryName, null, null, parameters);
+	}
+	
+	public <S> List<S> findWithNativeQuery(Class<S> resultClass, String sql, Map<String, Object> parameters){
+		
+		Query query = em().createNativeQuery(sql);
+		for (Map.Entry<String, Object> par : parameters.entrySet()) {
+			query.setParameter(par.getKey(), par.getValue());
+		}
+		return query.getResultList();
 	}
 }

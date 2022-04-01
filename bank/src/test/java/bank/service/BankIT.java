@@ -30,6 +30,7 @@ import bank.dao.AbstractDao;
 import bank.dao.AccountDao;
 import bank.dao.ClientDao;
 import bank.model.Account;
+import bank.model.BankException;
 import bank.model.Client;
 
 //másik megoldás DB takarításra

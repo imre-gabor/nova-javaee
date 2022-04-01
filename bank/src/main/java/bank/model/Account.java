@@ -3,8 +3,6 @@ package bank.model;
 import java.io.Serializable;
 import javax.persistence.*;
 
-import bank.service.BankException;
-
 import java.util.Date;
 
 
@@ -21,6 +19,7 @@ public class Account implements Serializable {
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private int accountid;
 
+	@Convert(converter = CurrencyConverter.class)
 	private double balance;
 
 	@Temporal(TemporalType.DATE)
@@ -33,6 +32,15 @@ public class Account implements Serializable {
 
 	public Account() {
 	}
+	
+	public Account(int accountid, double balance, Date createdate) {
+		super();
+		this.accountid = accountid;
+		this.balance = balance;
+		this.createdate = createdate;
+	}
+
+
 
 	public int getAccountid() {
 		return this.accountid;

@@ -21,6 +21,7 @@ import bank.dao.AccountDao;
 import bank.dao.ClientDao;
 import bank.dao.HistoryDao;
 import bank.model.Account;
+import bank.model.BankException;
 import bank.model.Client;
 import bank.model.History;
 import bank.model.History.Status;

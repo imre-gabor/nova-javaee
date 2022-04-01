@@ -5,6 +5,7 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 
 import bank.model.Account;
+import bank.model.BankException;
 import bank.model.Client;
 import bank.model.History;
 import bank.model.History.Status;

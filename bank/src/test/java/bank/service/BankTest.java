@@ -18,6 +18,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import bank.dao.AccountDao;
 import bank.dao.ClientDao;
 import bank.model.Account;
+import bank.model.BankException;
 import bank.model.Client;
 
 @RunWith(MockitoJUnitRunner.class)
