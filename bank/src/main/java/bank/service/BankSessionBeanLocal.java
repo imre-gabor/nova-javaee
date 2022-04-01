@@ -1,11 +1,10 @@
 package bank.service;
 
 import javax.ejb.Local;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
 
 import bank.model.Account;
 import bank.model.Client;
+import bank.model.History;
 
 @Local
 public interface BankSessionBeanLocal {
@@ -16,7 +15,7 @@ public interface BankSessionBeanLocal {
 
 	void createClient(Client client);
 
-	void logHistory(String message);
+	History logHistory(String message, Double amount);
 
 	void scheduleTransfer(int fromAccountId, int toAccountId, double amount);
 

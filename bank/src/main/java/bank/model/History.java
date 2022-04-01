@@ -10,10 +10,15 @@ import javax.persistence.Id;
 @Entity
 public class History {
 
+	
+	public enum Status {PENDING, SUCCESS, FAILURE};
+	
 	@Id
 	@GeneratedValue
 	private long id;
 	private String message;
+	private Double amount;
+	private Status status;
 	private OffsetDateTime ts;
 	
 	public History() {
@@ -43,5 +48,21 @@ public class History {
 	public void setTs(OffsetDateTime ts) {
 		this.ts = ts;
 	}
-	
+
+	public Double getAmount() {
+		return amount;
+	}
+
+	public void setAmount(Double amount) {
+		this.amount = amount;
+	}
+
+	public Status getStatus() {
+		return status;
+	}
+
+	public void setStatus(Status status) {
+		this.status = status;
+	}
+
 }

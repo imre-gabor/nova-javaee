@@ -22,6 +22,7 @@ import bank.dao.HistoryDao;
 import bank.model.Account;
 import bank.model.Client;
 import bank.model.History;
+import bank.model.History.Status;
 
 /**
  * Session Bean implementation class BankSessionBean
@@ -81,10 +82,11 @@ public class BankSessionBean implements BankSessionBeanLocal {
     @Override
 	public void transfer(int fromAccountId, int toAccountId, double amount) throws BankException {
     	
+    	History history = null;
     	try {
     		//cél: akkor is le legyen naplózva a history táblába ez az esemény, ha végül a transfer sikertelen, és rollbackel
-    		ctx.getBusinessObject(BankSessionBeanLocal.class)
-    			.logHistory(String.format("Trying to transfer from account %d to account %d amount %f", fromAccountId, toAccountId, amount));
+    		history = ctx.getBusinessObject(BankSessionBeanLocal.class)
+    			.logHistory(String.format("Trying to transfer from account %d to account %d amount %f", fromAccountId, toAccountId, amount), amount);
     		
 	    	Optional<Account> fromAccount = accountDao.findById(fromAccountId);
 	    	Optional<Account> toAccount = accountDao.findById(toAccountId);
@@ -93,8 +95,9 @@ public class BankSessionBean implements BankSessionBeanLocal {
 	    	
 	    	toAccount.get().increase(amount);
 	    	fromAccount.get().decrease(amount);
-	    	
+	    	history.setStatus(Status.SUCCESS);
     	} catch (Exception e) {
+    		history.setStatus(Status.FAILURE);
     		ctx.setRollbackOnly();
     		throw new BankException(e);
     	}
@@ -106,8 +109,11 @@ public class BankSessionBean implements BankSessionBeanLocal {
      */
     @Override
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW) 
-    public void logHistory(String message) {
-    	historyDao.create(new History(message));
+    public History logHistory(String message, Double amount) {
+    	History history = new History(message);
+    	history.setAmount(amount);
+    	history.setStatus(Status.PENDING);
+		return historyDao.create(history);
     }
-
+    
 }
