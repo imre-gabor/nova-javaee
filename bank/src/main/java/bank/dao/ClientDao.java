@@ -14,6 +14,7 @@ import javax.persistence.criteria.Root;
 import org.apache.commons.lang3.StringUtils;
 
 import bank.model.Client;
+import bank.model.Client_;
 
 @Stateless
 public class ClientDao extends AbstractDao<Client, Integer> {
@@ -42,15 +43,15 @@ public class ClientDao extends AbstractDao<Client, Integer> {
 		
 		List<Predicate> predicates = new ArrayList<>();
 		if(clientid > 0) {
-			predicates.add(cb.equal(root.get("clientid"), clientid));
+			predicates.add(cb.equal(root.get(Client_.clientid), clientid));
 		}
 		
 		if(StringUtils.isNotEmpty(address)) {
-			predicates.add(cb.like(root.get("address"), "%" + address + "%"));
+			predicates.add(cb.like(root.get(Client_.address), "%" + address + "%"));
 		}
 		
 		if(StringUtils.isNotEmpty(name)) {
-			predicates.add(cb.like(root.get("name"), name + "%"));
+			predicates.add(cb.like(root.get(Client_.name), name + "%"));
 		}
 
 		cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
