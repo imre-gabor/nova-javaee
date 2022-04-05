@@ -26,6 +26,7 @@ public class Client implements Serializable {
 	private int clientid;
 
 	@NotEmpty
+	@ContainsZipCode
 	private String address;
 
 	@NotEmpty
