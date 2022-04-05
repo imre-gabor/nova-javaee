@@ -2,6 +2,7 @@ package bank.model;
 
 import java.io.Serializable;
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
@@ -24,8 +25,10 @@ public class Client implements Serializable {
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private int clientid;
 
+	@NotEmpty
 	private String address;
 
+	@NotEmpty
 	private String name;
 
 	//bi-directional many-to-one association to Account

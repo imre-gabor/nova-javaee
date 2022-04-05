@@ -79,6 +79,11 @@
 		</table>
 	</form>
 	${resultOfClientCreation}
+	<ul>
+		<c:forEach var="error" items="${validationErrors}">
+			<li>${error.propertyPath} ${error.message}</li>
+		</c:forEach>
+	</ul>
 
 	<h2>Create Account for Client</h2>
 	<form action="CreateAccountServlet">
