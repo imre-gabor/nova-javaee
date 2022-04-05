@@ -2,6 +2,10 @@ package bank.model;
 
 import java.io.Serializable;
 import javax.persistence.*;
+
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
 import java.util.List;
 
 
@@ -11,6 +15,8 @@ import java.util.List;
  */
 @Entity
 @NamedQuery(name="Client.findAll", query="SELECT c FROM Client c")
+@NamedQuery(name="Client.findByIdIn", query="SELECT c FROM Client c WHERE c.clientid IN :ids")
+@NamedEntityGraph(name = "Client.EGWithAccounts", attributeNodes = @NamedAttributeNode("accounts"))
 public class Client implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -23,7 +29,8 @@ public class Client implements Serializable {
 	private String name;
 
 	//bi-directional many-to-one association to Account
-	@OneToMany(mappedBy="client")
+	@OneToMany(mappedBy="client"/*, fetch = FetchType.EAGER*/)
+//	@Fetch(FetchMode.SUBSELECT)
 	private List<Account> accounts;
 
 	public Client() {

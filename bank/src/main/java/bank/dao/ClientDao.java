@@ -2,12 +2,16 @@ package bank.dao;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.ejb.Stateless;
+import javax.persistence.EntityGraph;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
@@ -32,6 +36,14 @@ public class ClientDao extends AbstractDao<Client, Integer> {
 	}
 
 	public List<Client> findByExample(Client example) {
+		TypedQuery<Client> query = createQueryBasedOnCriteria(example);
+		
+//		query.setMaxResults(2); --> nem hatékony a fetch-csel együtt
+		applyAccountsEntityGraph(query);
+		return query.getResultList();
+	}
+
+	private TypedQuery<Client> createQueryBasedOnCriteria(Client example) {
 		int clientid = example.getClientid();
 		String address = example.getAddress();
 		String name = example.getName();
@@ -39,6 +51,8 @@ public class ClientDao extends AbstractDao<Client, Integer> {
 		CriteriaBuilder cb = getCriteriaBuilder();
 		CriteriaQuery<Client> cq = cb.createQuery(Client.class);
 		Root<Client> root = cq.from(Client.class);
+		//root.fetch(Client_.accounts, JoinType.LEFT);
+		
 		cq.select(root);
 		
 		List<Predicate> predicates = new ArrayList<>();
@@ -56,7 +70,31 @@ public class ClientDao extends AbstractDao<Client, Integer> {
 
 		cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
 		
-		return em.createQuery(cq).getResultList();
+		TypedQuery<Client> query = em.createQuery(cq);
+		
+		return query;
 	}
+
+	private void applyAccountsEntityGraph(TypedQuery<Client> query) {
+		EntityGraph<?> eg = em.getEntityGraph("Client.EGWithAccounts");
+		query.setHint("javax.persistence.loadgraph", eg);
+	}
+	
+	public List<Client> findByExampleWithPaging(Client example, int maxResults, int firstResult) {
+		TypedQuery<Client> query = createQueryBasedOnCriteria(example);
+		query.setMaxResults(2);
+		List<Client> clientsWithNoAccounts = query.getResultList();
+		return fetchSelectedClientsWithAccounts(clientsWithNoAccounts);
+	}
+
+	private List<Client> fetchSelectedClientsWithAccounts(List<Client> clientsWithNoAccounts) {
+		TypedQuery<Client> query = em.createNamedQuery("Client.findByIdIn", Client.class)
+				.setParameter("ids", clientsWithNoAccounts.stream().map(Client::getClientid).collect(Collectors.toList()));
+		
+		applyAccountsEntityGraph(query);
+		return query
+				.getResultList();
+	}
+
 
 }

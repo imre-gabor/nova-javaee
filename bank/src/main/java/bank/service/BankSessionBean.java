@@ -139,7 +139,8 @@ public class BankSessionBean implements BankSessionBeanLocal {
     
     @Override
 	public List<Client> searchClients(Client example){
-    	return clientDao.findByExample(example);
+//    	return clientDao.findByExample(example);
+    	return clientDao.findByExampleWithPaging(example, 2, 0);
     }
     
 }
