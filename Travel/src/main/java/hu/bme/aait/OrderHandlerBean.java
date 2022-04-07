@@ -56,6 +56,10 @@ public class OrderHandlerBean {
 	}
 	
 	public void cancelFlight(String flightId) {
-		// TODO: update status to cancelled for all affected orders
+		em.createNamedQuery("Orders.findByFlightId", Orders.class)
+			.setParameter("flightId", flightId)
+			.getResultList()
+			.forEach(o -> o.setStatus(Status.CANCELLED));
+	
 	}
 }

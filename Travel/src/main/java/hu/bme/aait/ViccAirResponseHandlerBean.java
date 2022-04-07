@@ -32,7 +32,7 @@ public class ViccAirResponseHandlerBean implements MessageListener {
 
 		if (message instanceof ObjectMessage) {
 			try {
-				TicketOrderBean ticketOrderBean = ((ObjectMessage)message).getBody(TicketOrderBean.class);
+				TicketOrderBean ticketOrderBean = message.getBody(TicketOrderBean.class);
 				
 				orderBean.updateOrderStatus(ticketOrderBean.getOrderId(), convertStatus(ticketOrderBean.getStatus()));
 				
@@ -46,4 +46,5 @@ public class ViccAirResponseHandlerBean implements MessageListener {
 	private hu.bme.aait.Orders.Status convertStatus(Status status) {
 		return hu.bme.aait.Orders.Status.valueOf(status.name());
 	}
+	
 }
