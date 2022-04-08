@@ -46,12 +46,12 @@ public class BankIT {
 	@Deployment
 	public static WebArchive createDeployment() {
 		File[] dependencies = Maven.resolver().loadPomFromFile("pom.xml")
-			.resolve("org.assertj:assertj-core")
+			.resolve("org.assertj:assertj-core", "org.springframework.data:spring-data-jpa")
 			.withTransitivity()
 			.asFile();
 		
 		return ShrinkWrap.create(WebArchive.class)
-				.addPackages(false, "bank.model", "bank.dao", "bank.service")
+				.addPackages(false, "bank.model", "bank.dao", "bank.service", "bank.repository")
 				.addAsResource("META-INF/persistence.xml")
 				.addAsLibraries(dependencies);
 	}
@@ -90,9 +90,12 @@ public class BankIT {
 	public void testThatAccountForExistingClientIsCreated() throws Exception {
 		//ARRANGE
 		Client client = new Client();
+		client.setAddress("1111");
+		client.setName("ssdf");
 		client.setAccounts(new ArrayList<Account>());
 //		client = clientDao.create(client);
-		client = clientRepository.save(client);
+//		client = clientRepository.save(client); --> nincs tranzakció!!
+		bank.createClient(client);
 		int clientid = client.getClientid();
 		
 		Account account = new Account();
