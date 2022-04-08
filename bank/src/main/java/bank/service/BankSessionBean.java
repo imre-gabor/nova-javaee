@@ -1,6 +1,5 @@
 package bank.service;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -17,6 +16,14 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import javax.interceptor.Interceptors;
+
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.data.domain.ExampleMatcher.StringMatcher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Order;
 
 import bank.dao.AccountDao;
 import bank.dao.ClientDao;
@@ -145,9 +152,19 @@ public class BankSessionBean implements BankSessionBeanLocal {
     
     @Override
 	public List<Client> searchClients(Client example){
-//    	return clientDao.findByExample(example);
+		//    	return clientDao.findByExample(example);
 //    	return clientDao.findByExampleWithPaging(example, 2, 0);
-    	return clientDao.findByExampleWithHibernate(example);
+//    	return clientDao.findByExampleWithHibernate(example);
+    	Example<Client> ex = Example
+    			.of(example, ExampleMatcher.matching()
+    					.withIgnoreNullValues()
+    					.withIgnoreCase()
+    					.withStringMatcher(StringMatcher.STARTING)
+    					.withTransformer("clientid", id -> ((Integer)id.get()) == 0 ? Optional.empty() : Optional.of(id))
+    					.withMatcher("address", matcher -> matcher.contains()));
+    	
+    	Page<Client> pageOfClient = clientRepository.findAll(ex, PageRequest.of(0, 2, Sort.by(Order.desc("name"), Order.asc("clientid"))));
+		return pageOfClient.getContent();
     }
     
 }
