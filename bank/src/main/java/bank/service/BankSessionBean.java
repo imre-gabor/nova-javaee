@@ -3,6 +3,7 @@ package bank.service;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 import javax.ejb.EJB;
@@ -17,6 +18,7 @@ import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import javax.interceptor.Interceptors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.ExampleMatcher.StringMatcher;
@@ -24,6 +26,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
+import org.springframework.data.jpa.domain.Specification;
 
 import bank.dao.AccountDao;
 import bank.dao.ClientDao;
@@ -31,9 +34,11 @@ import bank.dao.HistoryDao;
 import bank.model.Account;
 import bank.model.BankException;
 import bank.model.Client;
+import bank.model.Client_;
 import bank.model.History;
 import bank.model.History.Status;
 import bank.repository.ClientRepository;
+import static bank.repository.ClientSpecifications.*;
 
 /**
  * Session Bean implementation class BankSessionBean
@@ -151,11 +156,19 @@ public class BankSessionBean implements BankSessionBeanLocal {
     
     
     @Override
+    @TransactionAttribute(TransactionAttributeType.SUPPORTS)
 	public List<Client> searchClients(Client example){
 		//    	return clientDao.findByExample(example);
 //    	return clientDao.findByExampleWithPaging(example, 2, 0);
 //    	return clientDao.findByExampleWithHibernate(example);
-    	Example<Client> ex = Example
+//    	List<Client> clients = findClientsWithSpringDataExampleWithPaging(example);
+    	List<Client> clients = findClientsWithSpringDataSpecificationWithPaging(example);
+		return clientRepository.findByClientidIn(clients.stream().map(Client::getClientid).collect(Collectors.toList()));
+    	
+    }
+
+	private List<Client> findClientsWithSpringDataExampleWithPaging(Client example) {
+		Example<Client> ex = Example
     			.of(example, ExampleMatcher.matching()
     					.withIgnoreNullValues()
     					.withIgnoreCase()
@@ -164,7 +177,32 @@ public class BankSessionBean implements BankSessionBeanLocal {
     					.withMatcher("address", matcher -> matcher.contains()));
     	
     	Page<Client> pageOfClient = clientRepository.findAll(ex, PageRequest.of(0, 2, Sort.by(Order.desc("name"), Order.asc("clientid"))));
-		return pageOfClient.getContent();
-    }
+    	List<Client> clients = pageOfClient.getContent();
+		return clients;
+	}
     
+	private List<Client> findClientsWithSpringDataSpecificationWithPaging(Client example) {
+		int clientid = example.getClientid();
+		String address = example.getAddress();
+		String name = example.getName();
+		
+		Specification<Client> spec = Specification.where(null);
+		
+		if(clientid > 0) {
+			spec = spec.and(isClientIdEqual(clientid));
+		}
+		
+		if(StringUtils.isNotEmpty(address)) {
+			spec = spec.and(addressContains(address));
+		}
+		
+		if(StringUtils.isNotEmpty(name)) {
+			spec = spec.and(nameStartsWith(name));
+		}
+		return clientRepository
+				.findAll(spec, PageRequest.of(0, 2, Sort.by(Order.desc("name"), Order.asc("clientid"))))
+				.getContent();
+		
+	}
+
 }

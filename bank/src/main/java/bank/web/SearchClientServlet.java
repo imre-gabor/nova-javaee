@@ -48,7 +48,7 @@ public class SearchClientServlet extends HttpServlet {
 			example.setClientid(clientid);
 			List<Client> result = bank.searchClients(example);
 			
-//			result.forEach( c-> c.getAccounts().forEach(System.out::println));
+			result.forEach( c-> c.getAccounts().forEach(System.out::println));
 			
 			/*1. verzió: default fetch, semmit nem állítunk 
 			 * --> by default lazy fetch, de itt már lecsatolt állapotúak a client példányok 
