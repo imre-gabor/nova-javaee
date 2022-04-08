@@ -1,37 +1,30 @@
 package bank.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Optional;
 
 import javax.ejb.EJB;
+import javax.inject.Inject;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.arquillian.transaction.api.annotation.TransactionMode;
-import org.jboss.arquillian.transaction.api.annotation.Transactional;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import static org.assertj.core.api.Assertions.*;
 
-import bank.dao.AbstractDao;
 import bank.dao.AccountDao;
-import bank.dao.ClientDao;
 import bank.model.Account;
 import bank.model.BankException;
 import bank.model.Client;
+import bank.repository.ClientRepository;
 
 //másik megoldás DB takarításra
 //@Transactional(value=TransactionMode.ROLLBACK)
@@ -44,9 +37,11 @@ public class BankIT {
 	@EJB
 	AccountDao accountDao;
 	
-	@EJB
-	ClientDao clientDao;
+//	@EJB
+//	ClientDao clientDao;
 	
+	@Inject
+	ClientRepository clientRepository;
 	
 	@Deployment
 	public static WebArchive createDeployment() {
@@ -64,7 +59,8 @@ public class BankIT {
 	@Before
 	public void init() {
 		accountDao.deleteAll();
-		clientDao.deleteAll();
+//		clientDao.deleteAll();
+		clientRepository.deleteAll();
 	}
 	
 	@Test
@@ -95,7 +91,8 @@ public class BankIT {
 		//ARRANGE
 		Client client = new Client();
 		client.setAccounts(new ArrayList<Account>());
-		client = clientDao.create(client);
+//		client = clientDao.create(client);
+		client = clientRepository.save(client);
 		int clientid = client.getClientid();
 		
 		Account account = new Account();

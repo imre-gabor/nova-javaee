@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 
 import javax.ejb.EJB;
+import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -11,11 +12,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 
-import bank.dao.ClientDao;
 import bank.model.Client;
+import bank.repository.ClientRepository;
 import bank.service.BankSessionBeanLocal;
 
 /**
@@ -28,8 +27,9 @@ public class SearchClientServlet extends HttpServlet {
 	@EJB
 	BankSessionBeanLocal bank;
 	
-	@EJB
-	ClientDao clientDao;
+//	@EJB
+//	ClientDao clientDao;
+	
 	
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)

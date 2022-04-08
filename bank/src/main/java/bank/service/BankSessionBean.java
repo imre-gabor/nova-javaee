@@ -1,12 +1,12 @@
 package bank.service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 import javax.annotation.Resource;
 import javax.ejb.EJB;
-import javax.ejb.Schedule;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 import javax.ejb.Timeout;
@@ -15,17 +15,17 @@ import javax.ejb.TimerConfig;
 import javax.ejb.TimerService;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
+import javax.inject.Inject;
 import javax.interceptor.Interceptors;
 
-import bank.dao.AbstractDao;
 import bank.dao.AccountDao;
-import bank.dao.ClientDao;
 import bank.dao.HistoryDao;
 import bank.model.Account;
 import bank.model.BankException;
 import bank.model.Client;
 import bank.model.History;
 import bank.model.History.Status;
+import bank.repository.ClientRepository;
 
 /**
  * Session Bean implementation class BankSessionBean
@@ -34,8 +34,11 @@ import bank.model.History.Status;
 @Interceptors(LoggerInterceptor.class)
 public class BankSessionBean implements BankSessionBeanLocal {
 	
-	@EJB
-	ClientDao clientDao;
+//	@EJB
+//	ClientDao clientDao;
+	
+	@Inject
+	ClientRepository clientRepository;
 	
 	@EJB
 	AccountDao accountDao;
@@ -51,12 +54,14 @@ public class BankSessionBean implements BankSessionBeanLocal {
 
     @Override
 	public void createClient(Client client) {
-    	clientDao.create(client);
+//    	clientDao.create(client);
+    	clientRepository.save(client);
     }
     
     @Override
 	public void createAccountForClient(Account account, int clientId) throws BankException {
-    	Optional<Client> optionalClient = clientDao.findById(clientId);
+//    	Optional<Client> optionalClient = clientDao.findById(clientId);
+    	Optional<Client> optionalClient = clientRepository.findById(clientId);
     	if(!optionalClient.isPresent())
     		throw new BankException("Client with given id does not exist");
 
@@ -140,7 +145,8 @@ public class BankSessionBean implements BankSessionBeanLocal {
     @Override
 	public List<Client> searchClients(Client example){
 //    	return clientDao.findByExample(example);
-    	return clientDao.findByExampleWithPaging(example, 2, 0);
+//    	return clientDao.findByExampleWithPaging(example, 2, 0);
+    	return new ArrayList<Client>();
     }
     
 }

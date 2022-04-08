@@ -1,26 +1,16 @@
 package bank.service;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
-import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import javax.ejb.EJB;
 
 import org.assertj.core.data.Offset;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.arquillian.transaction.api.annotation.TransactionMode;
-import org.jboss.arquillian.transaction.api.annotation.Transactional;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.junit.Before;
@@ -29,14 +19,8 @@ import org.junit.runner.RunWith;
 
 import com.google.common.collect.ImmutableMap;
 
-import static org.assertj.core.api.Assertions.*;
-
-import bank.dao.AbstractDao;
 import bank.dao.AccountDao;
-import bank.dao.ClientDao;
 import bank.model.Account;
-import bank.model.BankException;
-import bank.model.Client;
 
 @RunWith(Arquillian.class)
 public class CurrencyConverterIT {

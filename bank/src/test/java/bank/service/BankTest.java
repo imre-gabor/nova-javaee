@@ -1,25 +1,25 @@
 package bank.service;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Optional;
 
-import javax.ejb.EJB;
-
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import static org.mockito.Mockito.*;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import bank.dao.AccountDao;
-import bank.dao.ClientDao;
 import bank.model.Account;
 import bank.model.BankException;
 import bank.model.Client;
+import bank.repository.ClientRepository;
 
 @RunWith(MockitoJUnitRunner.class)
 public class BankTest {
@@ -28,7 +28,8 @@ public class BankTest {
 	BankSessionBeanLocal bank;
 	
 	@Mock
-	ClientDao clientDao;
+//	ClientDao clientDao;
+	ClientRepository clientDao;
 	
 	@Mock
 	AccountDao accountDao;
