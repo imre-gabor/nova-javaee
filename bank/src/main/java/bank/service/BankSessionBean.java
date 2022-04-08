@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import javax.interceptor.Interceptors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.ExampleMatcher.StringMatcher;
@@ -27,6 +28,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.jpa.domain.Specification;
+
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.ExpressionUtils;
+import com.querydsl.core.types.Predicate;
+import com.querydsl.core.types.dsl.Expressions;
 
 import bank.dao.AccountDao;
 import bank.dao.ClientDao;
@@ -37,6 +43,7 @@ import bank.model.Client;
 import bank.model.Client_;
 import bank.model.History;
 import bank.model.History.Status;
+import bank.model.QClient;
 import bank.repository.ClientRepository;
 import static bank.repository.ClientSpecifications.*;
 
@@ -162,10 +169,13 @@ public class BankSessionBean implements BankSessionBeanLocal {
 //    	return clientDao.findByExampleWithPaging(example, 2, 0);
 //    	return clientDao.findByExampleWithHibernate(example);
 //    	List<Client> clients = findClientsWithSpringDataExampleWithPaging(example);
-    	List<Client> clients = findClientsWithSpringDataSpecificationWithPaging(example);
+//    	List<Client> clients = findClientsWithSpringDataSpecificationWithPaging(example);
+    	List<Client> clients = findClientsWithQueryDslWithPaging(example);
 		return clientRepository.findByClientidIn(clients.stream().map(Client::getClientid).collect(Collectors.toList()));
     	
     }
+
+	
 
 	private List<Client> findClientsWithSpringDataExampleWithPaging(Client example) {
 		Example<Client> ex = Example
@@ -176,7 +186,7 @@ public class BankSessionBean implements BankSessionBeanLocal {
     					.withTransformer("clientid", id -> ((Integer)id.get()) == 0 ? Optional.empty() : Optional.of(id))
     					.withMatcher("address", matcher -> matcher.contains()));
     	
-    	Page<Client> pageOfClient = clientRepository.findAll(ex, PageRequest.of(0, 2, Sort.by(Order.desc("name"), Order.asc("clientid"))));
+    	Page<Client> pageOfClient = clientRepository.findAll(ex, createPageRequest());
     	List<Client> clients = pageOfClient.getContent();
 		return clients;
 	}
@@ -200,9 +210,42 @@ public class BankSessionBean implements BankSessionBeanLocal {
 			spec = spec.and(nameStartsWith(name));
 		}
 		return clientRepository
-				.findAll(spec, PageRequest.of(0, 2, Sort.by(Order.desc("name"), Order.asc("clientid"))))
+				.findAll(spec, createPageRequest())
 				.getContent();
 		
+	}
+
+	private PageRequest createPageRequest() {
+		return PageRequest.of(0, 2, Sort.by(Order.desc("name"), Order.asc("clientid")));
+	}
+	
+	private List<Client> findClientsWithQueryDslWithPaging(Client example) {
+		
+		int clientid = example.getClientid();
+		String address = example.getAddress();
+		String name = example.getName();
+		
+		BooleanBuilder booleanBuilder = new BooleanBuilder();
+		
+		QClient qClient = QClient.client;
+		
+		if(clientid > 0) {
+			booleanBuilder.and(qClient.clientid.eq(clientid));
+		}
+		
+		if(StringUtils.isNotEmpty(address)) {
+			booleanBuilder.and(qClient.address.containsIgnoreCase(address));
+		}
+		
+		if(StringUtils.isNotEmpty(name)) {
+			booleanBuilder.and(qClient.name.startsWithIgnoreCase(name));
+		}
+		
+		Predicate predicate = booleanBuilder.getValue();
+		
+		return predicate != null ? clientRepository.findAll(predicate, createPageRequest()).getContent() 
+				: clientRepository.findAll(createPageRequest()).getContent();
+				
 	}
 
 }
