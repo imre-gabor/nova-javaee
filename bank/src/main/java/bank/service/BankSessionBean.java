@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import javax.interceptor.Interceptors;
 
 import bank.dao.AccountDao;
+import bank.dao.ClientDao;
 import bank.dao.HistoryDao;
 import bank.model.Account;
 import bank.model.BankException;
@@ -34,8 +35,8 @@ import bank.repository.ClientRepository;
 @Interceptors(LoggerInterceptor.class)
 public class BankSessionBean implements BankSessionBeanLocal {
 	
-//	@EJB
-//	ClientDao clientDao;
+	@EJB
+	ClientDao clientDao;
 	
 	@Inject
 	ClientRepository clientRepository;
@@ -146,7 +147,7 @@ public class BankSessionBean implements BankSessionBeanLocal {
 	public List<Client> searchClients(Client example){
 //    	return clientDao.findByExample(example);
 //    	return clientDao.findByExampleWithPaging(example, 2, 0);
-    	return new ArrayList<Client>();
+    	return clientDao.findByExampleWithHibernate(example);
     }
     
 }

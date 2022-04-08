@@ -37,7 +37,9 @@ public class SearchClientServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
 		String name = request.getParameter("name");
+		name = StringUtils.stripToNull(name);
 		String address = request.getParameter("address");
+		address = StringUtils.stripToNull(address);
 		String clientIdString = request.getParameter("clientid");
 		int clientid = StringUtils.isEmpty(clientIdString) ? 0 : Integer.parseInt(clientIdString);
 		
@@ -46,7 +48,7 @@ public class SearchClientServlet extends HttpServlet {
 			example.setClientid(clientid);
 			List<Client> result = bank.searchClients(example);
 			
-			result.forEach( c-> c.getAccounts().forEach(System.out::println));
+//			result.forEach( c-> c.getAccounts().forEach(System.out::println));
 			
 			/*1. verzió: default fetch, semmit nem állítunk 
 			 * --> by default lazy fetch, de itt már lecsatolt állapotúak a client példányok 
