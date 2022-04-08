@@ -17,9 +17,9 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import javax.interceptor.Interceptors;
+import javax.transaction.Transactional;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.Nullable;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.ExampleMatcher.StringMatcher;
@@ -80,8 +80,8 @@ public class BankSessionBean implements BankSessionBeanLocal {
     
     @Override
 	public void createAccountForClient(Account account, int clientId) throws BankException {
-//    	Optional<Client> optionalClient = clientDao.findById(clientId);
-    	Optional<Client> optionalClient = clientRepository.findById(clientId);
+    	Optional<Client> optionalClient = clientDao.findById(clientId);
+//    	Optional<Client> optionalClient = clientRepository.findById(clientId);
     	if(!optionalClient.isPresent())
     		throw new BankException("Client with given id does not exist");
 
@@ -163,7 +163,7 @@ public class BankSessionBean implements BankSessionBeanLocal {
     
     
     @Override
-    @TransactionAttribute(TransactionAttributeType.SUPPORTS)
+//    @TransactionAttribute(TransactionAttributeType.SUPPORTS)
 	public List<Client> searchClients(Client example){
 		//    	return clientDao.findByExample(example);
 //    	return clientDao.findByExampleWithPaging(example, 2, 0);
@@ -171,7 +171,13 @@ public class BankSessionBean implements BankSessionBeanLocal {
 //    	List<Client> clients = findClientsWithSpringDataExampleWithPaging(example);
 //    	List<Client> clients = findClientsWithSpringDataSpecificationWithPaging(example);
     	List<Client> clients = findClientsWithQueryDslWithPaging(example);
-		return clientRepository.findByClientidIn(clients.stream().map(Client::getClientid).collect(Collectors.toList()));
+		List<Client> clientsWithAccounts = clientRepository.findByClientidIn(clients.stream().map(Client::getClientid).collect(Collectors.toList()));
+		clientsWithAccounts.forEach(c -> {
+			if(c.getAccounts() != null)
+				c.getAccounts().size();
+		});
+		
+		return clientsWithAccounts;
     	
     }
 

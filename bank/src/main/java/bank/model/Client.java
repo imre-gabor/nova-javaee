@@ -1,13 +1,21 @@
 package bank.model;
 
 import java.io.Serializable;
-import javax.persistence.*;
+import java.util.List;
+
+import javax.persistence.Cacheable;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.NamedAttributeNode;
+import javax.persistence.NamedEntityGraph;
+import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
 import javax.validation.constraints.NotEmpty;
 
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
-
-import java.util.List;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 
 /**
@@ -15,6 +23,8 @@ import java.util.List;
  * 
  */
 @Entity
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @NamedQuery(name="Client.findAll", query="SELECT c FROM Client c")
 @NamedQuery(name="Client.findByIdIn", query="SELECT c FROM Client c WHERE c.clientid IN :ids")
 @NamedEntityGraph(name = "Client.EGWithAccounts", attributeNodes = @NamedAttributeNode("accounts"))
@@ -35,6 +45,7 @@ public class Client implements Serializable {
 	//bi-directional many-to-one association to Account
 	@OneToMany(mappedBy="client"/*, fetch = FetchType.EAGER*/)
 //	@Fetch(FetchMode.SUBSELECT)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	private List<Account> accounts;
 
 	public Client() {
