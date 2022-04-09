@@ -1,10 +1,15 @@
 package bank.service;
 
+import static bank.repository.ClientSpecifications.addressContains;
+import static bank.repository.ClientSpecifications.isClientIdEqual;
+import static bank.repository.ClientSpecifications.nameStartsWith;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.ejb.SessionContext;
@@ -15,8 +20,9 @@ import javax.ejb.TimerConfig;
 import javax.ejb.TimerService;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
-import javax.inject.Inject;
 import javax.interceptor.Interceptors;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 
 import org.apache.commons.lang3.StringUtils;
@@ -28,11 +34,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.support.JpaRepositoryFactory;
+import org.springframework.data.repository.core.support.RepositoryFactorySupport;
 
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Predicate;
-import com.querydsl.core.types.dsl.Expressions;
 
 import bank.dao.AccountDao;
 import bank.dao.ClientDao;
@@ -40,12 +46,11 @@ import bank.dao.HistoryDao;
 import bank.model.Account;
 import bank.model.BankException;
 import bank.model.Client;
-import bank.model.Client_;
 import bank.model.History;
 import bank.model.History.Status;
 import bank.model.QClient;
 import bank.repository.ClientRepository;
-import static bank.repository.ClientSpecifications.*;
+import bank.repository.RepositoryFactory;
 
 /**
  * Session Bean implementation class BankSessionBean
@@ -57,7 +62,7 @@ public class BankSessionBean implements BankSessionBeanLocal {
 	@EJB
 	ClientDao clientDao;
 	
-	@Inject
+//	@Inject
 	ClientRepository clientRepository;
 	
 	@EJB
@@ -71,6 +76,14 @@ public class BankSessionBean implements BankSessionBeanLocal {
 	
 	@Resource
 	TimerService timerService;
+	
+	@PersistenceContext
+	EntityManager em;
+	
+	@PostConstruct
+	public void init() {
+		this.clientRepository = RepositoryFactory.createRepository(em, ClientRepository.class);
+	}
 
     @Override
 	public void createClient(Client client) {
@@ -163,6 +176,7 @@ public class BankSessionBean implements BankSessionBeanLocal {
     
     
     @Override
+    @Transactional
 //    @TransactionAttribute(TransactionAttributeType.SUPPORTS)
 	public List<Client> searchClients(Client example){
 		//    	return clientDao.findByExample(example);

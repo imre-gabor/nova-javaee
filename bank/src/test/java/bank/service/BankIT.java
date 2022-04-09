@@ -10,6 +10,8 @@ import java.util.ArrayList;
 
 import javax.ejb.EJB;
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
@@ -25,6 +27,7 @@ import bank.model.Account;
 import bank.model.BankException;
 import bank.model.Client;
 import bank.repository.ClientRepository;
+import bank.repository.RepositoryFactory;
 
 //másik megoldás DB takarításra
 //@Transactional(value=TransactionMode.ROLLBACK)
@@ -40,13 +43,16 @@ public class BankIT {
 //	@EJB
 //	ClientDao clientDao;
 	
-	@Inject
+//	@Inject
 	ClientRepository clientRepository;
+
+	@PersistenceContext
+	private EntityManager em;
 	
 	@Deployment
 	public static WebArchive createDeployment() {
 		File[] dependencies = Maven.resolver().loadPomFromFile("pom.xml")
-			.resolve("org.assertj:assertj-core", "org.springframework.data:spring-data-jpa")
+			.resolve("org.assertj:assertj-core", "org.springframework.data:spring-data-jpa", "com.querydsl:querydsl-jpa")
 			.withTransitivity()
 			.asFile();
 		
@@ -58,6 +64,7 @@ public class BankIT {
 	
 	@Before
 	public void init() {
+		clientRepository = RepositoryFactory.createRepository(em, ClientRepository.class);
 		accountDao.deleteAll();
 //		clientDao.deleteAll();
 		clientRepository.deleteAll();
